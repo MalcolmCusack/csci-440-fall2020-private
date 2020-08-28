@@ -66,6 +66,7 @@ The web application will be an open-ended project, but must include the followin
 * At least one entity must have all CRUD operations surfaced
 * Search with at least two inputs must be implemented
 * At least one report-like page must exist that makes use of a `GROUP BY` clause
+* Implement at least one Redis cache
 
 
 ### Project Resources
