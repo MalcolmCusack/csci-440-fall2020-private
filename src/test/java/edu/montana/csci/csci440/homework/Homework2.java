@@ -46,13 +46,18 @@ public class Homework2 extends DBTest {
                         "-- NEED TO DO SOME JOINS HERE KIDS");
 
         assertEquals(623, results.size());
-        assertEquals("Princess of the Dawn", results.get(0).get("TrackName"));
-        assertEquals("Restless and Wild", results.get(0).get("AlbumTitle"));
-        assertEquals("Accept", results.get(0).get("ArtistsName"));
 
-        assertEquals("Snoopy's search-Red baron", results.get(10).get("TrackName"));
-        assertEquals("The Best Of Billy Cobham", results.get(10).get("AlbumTitle"));
-        assertEquals("Billy Cobham", results.get(10).get("ArtistsName"));
+        // For now just get the count right, we'll do more elaborate stuff when we get
+        // to ORDER BY
+        //
+        //
+//        assertEquals("Princess of the Dawn", results.get(0).get("TrackName"));
+//        assertEquals("Restless and Wild", results.get(0).get("AlbumTitle"));
+//        assertEquals("Accept", results.get(0).get("ArtistsName"));
+//
+//        assertEquals("Snoopy's search-Red baron", results.get(10).get("TrackName"));
+//        assertEquals("The Best Of Billy Cobham", results.get(10).get("AlbumTitle"));
+//        assertEquals("Billy Cobham", results.get(10).get("ArtistsName"));
 
     }
 
