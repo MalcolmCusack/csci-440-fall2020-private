@@ -8,9 +8,10 @@ GROUP BY albums.ArtistId
 HAVING COUNT(albums.ArtistId) > 1;
 
 Select tracks.name as TrackName, albums.title as AlbumTitle, artists.name as ArtistName
-from tracks
+FROM tracks
 JOIN albums on tracks.AlbumId = albums.AlbumId
-Left OUTER JOIN artists on albums.AlbumId = artists.artistID
-where tracks.Milliseconds > 600000;
+Join artists on albums.ArtistId = artists.artistID
+where tracks.Milliseconds > 360000;
 
-SELECT tracks.name from tracks where tracks.milliseconds > 600000;
+
+SELECT tracks.name from tracks where tracks.milliseconds > 360000;

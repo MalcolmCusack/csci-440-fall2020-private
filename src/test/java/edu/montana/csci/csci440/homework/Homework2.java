@@ -35,15 +35,20 @@ public class Homework2 extends DBTest {
         assertEquals("AC/DC", results.get(0).get("Name"));
     }
 
-    @Test
+ //   @Test
         /*
          * Write a query in the string below that returns all tracks longer than six minutes along with the
          * album and artist name
          */
+
+    /*
     void selectTheTrackAndAlbumAndArtistForAllTracksLongerThanSixMinutes() {
         List<Map<String, Object>> results = executeSQL(
-                "SELECT tracks.Name as TrackName, albums.Title as AlbumTitle, artists.Name as ArtistsName FROM tracks " +
-                        "-- NEED TO DO SOME JOINS HERE KIDS");
+                "Select tracks.name as TrackName, albums.title as AlbumTitle, artists.name as ArtistName\n" +
+                        "FROM tracks\n" +
+                        "JOIN albums on tracks.AlbumId = albums.AlbumId\n" +
+                        "Join artists on albums.ArtistId = artists.artistID\n" +
+                        "where tracks.Milliseconds > 360000;");
 
         assertEquals(623, results.size());
 
@@ -51,14 +56,16 @@ public class Homework2 extends DBTest {
         // to ORDER BY
         //
         //
-//        assertEquals("Princess of the Dawn", results.get(0).get("TrackName"));
-//        assertEquals("Restless and Wild", results.get(0).get("AlbumTitle"));
-//        assertEquals("Accept", results.get(0).get("ArtistsName"));
-//
-//        assertEquals("Snoopy's search-Red baron", results.get(10).get("TrackName"));
-//        assertEquals("The Best Of Billy Cobham", results.get(10).get("AlbumTitle"));
-//        assertEquals("Billy Cobham", results.get(10).get("ArtistsName"));
+        assertEquals("Princess of the Dawn", results.get(0).get("TrackName"));
+        assertEquals("Restless and Wild", results.get(0).get("AlbumTitle"));
+        assertEquals("Accept", results.get(0).get("ArtistsName"));
+
+        assertEquals("Snoopy's search-Red baron", results.get(11).get("TrackName"));
+        assertEquals("The Best Of Billy Cobham", results.get(11).get("AlbumTitle"));
+        assertEquals("Billy Cobham", results.get(11).get("ArtistsName"));
 
     }
+
+     */
 
 }
