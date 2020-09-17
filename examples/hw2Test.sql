@@ -12,6 +12,3 @@ FROM tracks
 JOIN albums on tracks.AlbumId = albums.AlbumId
 Join artists on albums.ArtistId = artists.artistID
 where tracks.Milliseconds > 360000;
-
-
-SELECT tracks.name from tracks where tracks.milliseconds > 360000;

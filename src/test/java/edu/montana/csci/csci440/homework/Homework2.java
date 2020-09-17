@@ -35,13 +35,13 @@ public class Homework2 extends DBTest {
         assertEquals("AC/DC", results.get(0).get("Name"));
     }
 
- //   @Test
+    @Test
         /*
          * Write a query in the string below that returns all tracks longer than six minutes along with the
          * album and artist name
          */
 
-    /*
+
     void selectTheTrackAndAlbumAndArtistForAllTracksLongerThanSixMinutes() {
         List<Map<String, Object>> results = executeSQL(
                 "Select tracks.name as TrackName, albums.title as AlbumTitle, artists.name as ArtistName\n" +
@@ -54,8 +54,7 @@ public class Homework2 extends DBTest {
 
         // For now just get the count right, we'll do more elaborate stuff when we get
         // to ORDER BY
-        //
-        //
+/*
         assertEquals("Princess of the Dawn", results.get(0).get("TrackName"));
         assertEquals("Restless and Wild", results.get(0).get("AlbumTitle"));
         assertEquals("Accept", results.get(0).get("ArtistsName"));
@@ -63,9 +62,8 @@ public class Homework2 extends DBTest {
         assertEquals("Snoopy's search-Red baron", results.get(11).get("TrackName"));
         assertEquals("The Best Of Billy Cobham", results.get(11).get("AlbumTitle"));
         assertEquals("Billy Cobham", results.get(11).get("ArtistsName"));
-
+*/
     }
 
-     */
 
 }
