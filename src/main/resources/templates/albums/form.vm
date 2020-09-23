@@ -23,6 +23,10 @@
         <td>Title</td>
         <td><input type="text" name="Title" value="$!album.Title"></td>
     </tr>
+    <tr>
+        <td>Artist</td>
+        <td>$web.select('Artist', 'Name', $!album.ArtistId)</td>
+    </tr>
     </tbody>
 </table>
 <button>Save</button>

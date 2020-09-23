@@ -44,6 +44,10 @@ public class Artist extends Model {
         this.name = name;
     }
 
+    public static List<Artist> all() {
+        return all(0, Integer.MAX_VALUE);
+    }
+
     public static List<Artist> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(

@@ -47,6 +47,10 @@ public class Album extends Model {
         this.title = name;
     }
 
+    public static List<Album> all() {
+        return all(0, Integer.MAX_VALUE);
+    }
+
     public static List<Album> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(

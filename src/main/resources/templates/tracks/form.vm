@@ -35,6 +35,10 @@
         <td>Unit Price</td>
         <td><input type="text" name="UnitPrice" value="$!track.UnitPrice"></td>
     </tr>
+    <tr>
+        <td>Album</td>
+        <td>$web.select('Album', 'Title', $track.AlbumId)</td>
+    </tr>
     </tbody>
 </table>
 <button>Save</button>

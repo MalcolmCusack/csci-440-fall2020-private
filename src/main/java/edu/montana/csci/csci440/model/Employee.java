@@ -66,7 +66,7 @@ public class Employee extends Model {
                 stmt.setString(2, this.getLastName());
                 stmt.setString(3, this.getEmail());
                 stmt.executeUpdate();
-                employeeId = DB.getLastID();
+                employeeId = DB.getLastID(conn);
                 return true;
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
@@ -123,8 +123,11 @@ public class Employee extends Model {
 
     public static List<Employee> all(int page, int count) {
         try (Connection conn = DB.connect();
-             Statement stmt = conn.createStatement()) {
-            ResultSet results = stmt.executeQuery("SELECT * FROM employees");
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM employees LIMIT ?"
+             )) {
+            stmt.setInt(1, count);
+            ResultSet results = stmt.executeQuery();
             List<Employee> resultList = new LinkedList<>();
             while (results.next()) {
                 resultList.add(new Employee(results));

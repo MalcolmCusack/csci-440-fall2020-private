@@ -2,6 +2,16 @@
 
 <h3>Tracks</h3>
 
+<div style="padding: 12px">
+    <form>
+        <b>Search </b>
+        <input type="text" placeholder="Search by track, album or artist name..."
+               name="q"
+               value="$!web.param('q')">
+        <a href="/tracks/search">Advanced Search >></a>
+    </form>
+</div>
+
 <table>
     <thead>
     <tr>

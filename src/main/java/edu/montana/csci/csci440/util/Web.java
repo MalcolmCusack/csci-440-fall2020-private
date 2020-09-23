@@ -114,13 +114,26 @@ public class Web {
     public static String getError() {
         Session session = getRequest().session();
         String message = session.attribute(":error");
-        session.removeAttribute(":message");
+        session.removeAttribute(":error");
         return message;
     }
 
     public static Object redirect(String location) {
         getResponse().redirect(location);
         return "";
+    }
+
+    public static Integer integerOrNull(String paramName) {
+        return integerOr(paramName, null);
+    }
+
+    private static Integer integerOr(String paramName, Integer defaultValue) {
+        String val = getRequest().queryParams(paramName);
+        if (val != null && !val.equals("")) {
+            return Integer.parseInt(val);
+        } else {
+            return defaultValue;
+        }
     }
 
     public String pagingWidget(List collection) {
@@ -162,6 +175,42 @@ public class Web {
         } else {
             return "";
         }
+    }
+
+    public String select(String model, String displayProperty, Integer selected) throws Exception {
+        return select(model, displayProperty, selected, false);
+    }
+
+    public String select(String model, String displayProperty, Object selectedId, boolean includeEmpty) throws Exception {
+        String select = "<select style='max-width:200px' name='" + model + "Id'>\n";
+        Class<?> clazz = Class.forName("edu.montana.csci.csci440.model." + model);
+        Method all = clazz.getMethod("all");
+        List invoke = (List) all.invoke(null);
+        Method idGetter = clazz.getMethod("get" + model + "Id");
+        Method displayGetter = clazz.getMethod("get" + displayProperty);
+        if (includeEmpty) {
+            select += "<option></option>";
+        }
+        for (Object o : invoke) {
+            Object idValue = idGetter.invoke(o);
+            String selectedString;
+            if (idValue != null &&
+                    selectedId != null &&
+                    idValue.toString().equals(selectedId.toString())) {
+                selectedString = " selected";
+            } else {
+                selectedString = "";
+            }
+            select += "  <option value='" + idValue + "' " + selectedString + ">" +
+                    displayGetter.invoke(o) +
+                    "</option>\n";
+        }
+        select += "</select>\n";
+        return select;
+    }
+
+    public String param(String name) {
+        return getRequest().queryParams(name);
     }
 
     public static void init() {

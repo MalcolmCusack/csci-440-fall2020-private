@@ -104,6 +104,60 @@ public class Track extends Model {
         this.unitPrice = unitPrice;
     }
 
+    public static List<Track> advancedSearch(int page, int count,
+                                             String search, Integer artistId, Integer albumId,
+                                             Integer maxRuntime, Integer minRuntime) {
+        LinkedList<Object> args = new LinkedList<>();
+
+        String query = "SELECT * FROM tracks " +
+                "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
+                "WHERE name LIKE ?";
+        args.add("%" + search + "%");
+
+        // Conditionally include the query and argument
+        if (artistId != null) {
+            query += " AND ArtistId=? ";
+            args.add(artistId);
+        }
+
+        query += " LIMIT ?";
+        args.add(count);
+
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            for (int i = 0; i < args.size(); i++) {
+                Object arg = args.get(i);
+                stmt.setObject(i + 1, arg);
+            }
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Track(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public static List<Track> search(int page, int count, String search) {
+        String query = "SELECT * FROM tracks WHERE name LIKE ? LIMIT ?";
+        search = "%" + search + "%";
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, search);
+            stmt.setInt(2, count);
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Track(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
     public static List<Track> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
