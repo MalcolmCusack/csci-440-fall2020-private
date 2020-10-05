@@ -13,21 +13,21 @@ import java.util.List;
 
 public class Artist extends Model {
 
-    Long artistId;
-    String name;
+    private Long artistId;
+    private String Name;
 
     public Artist() {
     }
 
     private Artist(ResultSet results) throws SQLException {
-        name = results.getString("Name");
+        Name = results.getString("Name");
         artistId = results.getLong("ArtistId");
     }
 
 
     @Override
     public boolean verify() {
-        if (name == null || "".equals(name)) {
+        if (Name == null || "".equals(Name)) {
             addError("name can't be null or blank!");
         }
         return !hasErrors();
@@ -39,7 +39,7 @@ public class Artist extends Model {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
                          "INSERT INTO artists (Name) VALUES (?)")) {
-                stmt.setString(0, this.getName());
+                stmt.setString(1, this.getName());
                 stmt.executeUpdate();
                 artistId = DB.getLastID(conn);
                 return true;
@@ -64,11 +64,11 @@ public class Artist extends Model {
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(String Name) {
+        this.Name = Name;
     }
 
     public static List<Artist> all() {
