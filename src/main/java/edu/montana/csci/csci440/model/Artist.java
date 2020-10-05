@@ -13,7 +13,7 @@ import java.util.List;
 
 public class Artist extends Model {
 
-    long artistId;
+    Long artistId;
     String name;
 
     public Artist() {
@@ -55,12 +55,12 @@ public class Artist extends Model {
         return Album.getForArtist(artistId);
     }
 
-    public long getArtistId() {
+    public Long getArtistId() {
         return artistId;
     }
 
-    public void setArtistId(long artistId) {
-        this.artistId = artistId;
+    public void setArtist(Artist artist) {
+        this.artistId = artist.getArtistId();
     }
 
     public String getName() {
