@@ -24,7 +24,7 @@ class Server {
         /* Root Path                                                                 */
         /* ========================================================================= */
         get("/", (req, resp) -> {
-            Web.message("SQL Is Awesome");
+            Web.message("Carson Gross Is Awesome");
             return Web.renderTemplate("templates/index.vm");
         });
 

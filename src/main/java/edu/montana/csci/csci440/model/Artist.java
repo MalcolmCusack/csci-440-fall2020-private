@@ -24,6 +24,33 @@ public class Artist extends Model {
         artistId = results.getLong("ArtistId");
     }
 
+
+    @Override
+    public boolean verify() {
+        if (name == null || "".equals(name)) {
+            addError("name can't be null or blank!");
+        }
+        return !hasErrors();
+    }
+
+    @Override
+    public boolean create() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO artists (Name) VALUES (?)")) {
+                stmt.setString(0, this.getName());
+                stmt.executeUpdate();
+                artistId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
     public List<Album> getAlbums(){
         return Album.getForArtist(artistId);
     }
@@ -79,5 +106,10 @@ public class Artist extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
+
+
+
+
 
 }
