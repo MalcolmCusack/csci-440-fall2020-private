@@ -13,5 +13,9 @@ JOIN albums on tracks.AlbumId = albums.AlbumId
 Join artists on albums.ArtistId = artists.artistID
 where tracks.Milliseconds > 360000;
 
+SELECT albums.AlbumId, albums.Title from albums
+JOIN artists on albums.ArtistId = artists.ArtistId
+where artists.ArtistId = 1
+
 
 /*Order By AlbumTitle; */
