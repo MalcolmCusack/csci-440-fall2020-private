@@ -15,7 +15,62 @@ where tracks.Milliseconds > 360000;
 
 SELECT albums.AlbumId, albums.Title from albums
 JOIN artists on albums.ArtistId = artists.ArtistId
-where artists.ArtistId = 1
+where artists.ArtistId = 1;
+
+SELECT artists.Name as Artist, tracks.Name as Title, albums.Title as Album, genres.Name as Genre  from tracks
+JOIN artists on tracks.Composer = artists.Name
+Join albums on tracks.AlbumId = albums.AlbumId
+JOIN genres on tracks.GenreId = genres.GenreId;
+
+SELECT tracks.Name from playlist_track
+Join tracks on playlist_track.TrackId = tracks.TrackId;
 
 
-/*Order By AlbumTitle; */
+
+SELECT tracks.TrackId as TrackID, artists.Name as Artist, tracks.Name as Title, albums.Title as Album, genres.Name as Genre, playlists.Name
+FROM playlists
+JOIN playlist_track on playlists.PlaylistId = playlist_track.PlaylistId
+JOIN tracks on playlist_track.TrackId = tracks.TrackId
+Join albums on tracks.AlbumId = albums.AlbumId
+JOIN artists on albums.ArtistId = artists.ArtistId
+JOIN genres on tracks.GenreId = genres.GenreId
+GROUP BY tracks.TrackId;
+
+CREATE TABLE grammy_info (
+    grammyId  INTEGER  not null PRIMARY KEY,
+    Status  NVARCHAR(220),
+    ArtistId  INTEGER,
+    AlbumId  INTEGER,
+    TrackId  INTEGER,
+    GrammyCategoryId INTEGER,
+    FOREIGN KEY (ArtistId) references artists(ArtistId)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION,
+
+    FOREIGN KEY (AlbumId) references  albums(AlbumId)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION,
+
+    FOREIGN KEY (TrackId) references tracks(TrackId)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION,
+
+    FOREIGN KEY (GrammyCategoryId) references grammy_categories(GrammyCategoryId)
+        ON DELETE CASCADE
+        ON UPDATE NO ACTION
+);
+
+CREATE TABLE grammy_categories (
+    GrammyCategoryId  INTEGER  NOT NULL PRIMARY KEY,
+    Name  NVARCHAR(220)
+);
+
+SELECT last_insert_rowid();
+
+INSERT INTO genres (Name)
+VALUES
+("YEETERZ"),
+("BALLERZ"),
+("YOPPAZ"),
+("GEMREZZ"),
+("DUBEDUFOO");

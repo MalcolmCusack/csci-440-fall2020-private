@@ -61,6 +61,67 @@ public class Album extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
+    @Override
+    public boolean verify() {
+        if (title == null || "".equals(title)) {
+            addError("title can't be null or blank!");
+        }
+        return !hasErrors();
+    }
+
+    @Override
+    public boolean create() {
+        setArtist(getArtist());
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO albums (Title, AristId) VALUES (?, ?)")) {
+                stmt.setString(1, this.getTitle());
+                stmt.setLong(2, this.getArtistId());
+                stmt.executeUpdate();
+                albumId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    /*
+    @Override
+    public boolean update() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE artists SET Name=? WHERE artistId=?")) {
+                stmt.setString(1, this.getName());
+                stmt.setLong(2, this.getArtistId());
+                stmt.executeUpdate();
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM artists WHERE artistId=?")) {
+            stmt.setLong(1, this.getArtistId());
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+     */
+
     public static List<Album> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(

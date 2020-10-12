@@ -16,7 +16,15 @@ public class Homework3 extends DBTest {
      */
     public void createTracksPlusView(){
         //TODO fill this in
-        executeDDL("CREATE VIEW tracksPlus");
+        executeDDL("CREATE VIEW tracksPlus AS\n" +
+                "SELECT tracks.TrackId as TrackID, artists.Name as ArtistName, tracks.Name as Title, albums.Title as AlbumTitle, genres.Name as GenreName\n" +
+                "FROM playlist_track\n" +
+                "JOIN tracks on playlist_track.TrackId = tracks.TrackId\n" +
+                "Join albums on tracks.AlbumId = albums.AlbumId\n" +
+                "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
+                "JOIN genres on tracks.GenreId = genres.GenreId\n" +
+                "GROUP BY tracks.TrackId;");
+
 
         List<Map<String, Object>> results = executeSQL("SELECT * FROM tracksPlus ORDER BY TrackId");
         assertEquals(3503, results.size());
@@ -36,8 +44,39 @@ public class Homework3 extends DBTest {
      */
     public void createGrammyInfoTable(){
         //TODO fill these in
-        executeDDL("create table grammy_categories");
-        executeDDL("create table grammy_infos");
+
+        //executeDDL("create table grammy_categories");
+        executeDDL("CREATE TABLE grammy_categories (\n" +
+                "    GrammyCategoryId  INTEGER  NOT NULL PRIMARY KEY,\n" +
+                "    Name  NVARCHAR(220)\n" +
+                ");");
+
+
+        //executeDDL("create table grammy_infos");
+        executeDDL("CREATE TABLE grammy_infos (\n" +
+                "    grammyId  INTEGER  not null PRIMARY KEY,\n" +
+                "    Status  NVARCHAR(220),\n" +
+                "    ArtistId  INTEGER,\n" +
+                "    AlbumId  INTEGER,\n" +
+                "    TrackId  INTEGER,\n" +
+                "    GrammyCategoryId INTEGER,\n" +
+                "    FOREIGN KEY (ArtistId) references artists(ArtistId)\n" +
+                "        ON DELETE CASCADE\n" +
+                "        ON UPDATE NO ACTION,\n" +
+                "    \n" +
+                "    FOREIGN KEY (AlbumId) references  albums(AlbumId)\n" +
+                "        ON DELETE CASCADE\n" +
+                "        ON UPDATE NO ACTION,\n" +
+                "    \n" +
+                "    FOREIGN KEY (TrackId) references tracks(TrackId)\n" +
+                "        ON DELETE CASCADE\n" +
+                "        ON UPDATE NO ACTION,\n" +
+                "    \n" +
+                "    FOREIGN KEY (GrammyCategoryId) references grammy_categories(GrammyCategoryId)\n" +
+                "        ON DELETE CASCADE\n" +
+                "        ON UPDATE NO ACTION\n" +
+                ");");
+
 
         // TEST CODE
         executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
@@ -61,7 +100,13 @@ public class Homework3 extends DBTest {
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
         //TODO fill this in
-        executeUpdate("INSERT");
+        executeUpdate("INSERT INTO genres (Name)\n" +
+                "VALUES\n" +
+                "(\"YEETERZ\"),\n" +
+                "(\"BALLERZ\"),\n" +
+                "(\"YOPPAZ\"),\n" +
+                "(\"GEMREZZ\"),\n" +
+                "(\"DUBEDUFOO\");");
 
         Integer after = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
         assertEquals(before + 5, after);
