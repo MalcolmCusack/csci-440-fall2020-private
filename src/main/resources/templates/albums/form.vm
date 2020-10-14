@@ -1,7 +1,7 @@
 
 
 #if( $album.hasErrors() )
-    <div style="color:red">
+    <div style="color:#ff0000">
         <h4>Errors:</h4>
         <ul>
             #foreach( $error in $album.Errors )

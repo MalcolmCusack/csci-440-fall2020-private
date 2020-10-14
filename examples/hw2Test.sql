@@ -74,3 +74,30 @@ VALUES
 ("YOPPAZ"),
 ("GEMREZZ"),
 ("DUBEDUFOO");
+
+
+SELECT c.FirstName as CustomerFirstName, c.LastName as CustomerLastName, e.FirstName as EmployeeName, e.LastName as EmployeeLastName, b.FirstName as bossFirstName, b.LastName as bossLastName
+FROM invoices
+JOIN customers c on invoices.CustomerId = c.CustomerId
+JOIN employees e on c.SupportRepId = e.EmployeeId
+JOIN employees b on e.ReportsTo = b.EmployeeId
+GROUP BY invoices.CustomerId
+HAVING COUNT(invoices.CustomerId) > 1;
+
+CREATE TABLE student
+(
+    StudentId INTEGER not null PRIMARY KEY,
+    Email     NVARCHAR(100),
+    NetId     NVARCHAR(50)
+);
+
+CREATE TABLE class
+(
+    ClassId INTEGER NOT NULL  PRIMARY KEY ,
+    Name NVARCHAR(100),
+    StudentEmails NVARCHAR(100),
+    StudentId INTEGER,
+    FOREIGN KEY (StudentId) REFERENCES  student (StudentId)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+);

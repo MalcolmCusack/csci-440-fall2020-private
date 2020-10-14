@@ -29,7 +29,7 @@ public class Album extends Model {
         return Artist.find(artistId);
     }
 
-    public void setArtist(Artist artist) {
+    public void setArtistId(Artist artist) {
         artistId = artist.getArtistId();
     }
 
@@ -71,13 +71,13 @@ public class Album extends Model {
 
     @Override
     public boolean create() {
-        setArtist(getArtist());
         if (verify()) {
+            //this.setArtistId(this.getArtist());
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO albums (Title, AristId) VALUES (?, ?)")) {
+                         "INSERT INTO albums (Title, ArtistId) VALUES (?, ?)")) {
                 stmt.setString(1, this.getTitle());
-                stmt.setLong(2, this.getArtistId());
+                stmt.setLong(2, this.getArtistId() );
                 stmt.executeUpdate();
                 albumId = DB.getLastID(conn);
                 return true;

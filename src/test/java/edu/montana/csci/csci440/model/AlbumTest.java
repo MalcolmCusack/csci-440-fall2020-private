@@ -29,7 +29,7 @@ public class AlbumTest extends DBTest {
         Album album = new Album();
 
         album.setTitle("Example");
-        album.setArtist(Artist.find(1));
+        album.setArtistId(Artist.find(1));
 
         assertNull(album.getAlbumId());
         album.create();
@@ -47,7 +47,7 @@ public class AlbumTest extends DBTest {
         assertEquals(2, album.getErrors().size());
 
         album.setTitle("Example");
-        album.setArtist(Artist.find(1));
+        album.setArtistId(Artist.find(1));
         assertTrue(album.verify());
         assertEquals(0, album.getErrors().size());
     }
