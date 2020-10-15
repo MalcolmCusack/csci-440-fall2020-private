@@ -29,8 +29,12 @@ public class Album extends Model {
         return Artist.find(artistId);
     }
 
-    public void setArtistId(Artist artist) {
+    public void setArtist(Artist artist) {
         artistId = artist.getArtistId();
+    }
+
+    public void setArtistId(Long id) {
+        artistId = id;
     }
 
     public List<Track> getTracks() {
@@ -63,8 +67,12 @@ public class Album extends Model {
 
     @Override
     public boolean verify() {
+        _errors.clear();
         if (title == null || "".equals(title)) {
             addError("title can't be null or blank!");
+        }
+        if (artistId == null ) {
+            addError("Cant have null artist");
         }
         return !hasErrors();
     }
@@ -89,15 +97,16 @@ public class Album extends Model {
         }
     }
 
-    /*
+
     @Override
     public boolean update() {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "UPDATE artists SET Name=? WHERE artistId=?")) {
-                stmt.setString(1, this.getName());
+                         "UPDATE albums SET Title=?, ArtistId=?  WHERE AlbumId=?")) {
+                stmt.setString(1, this.getTitle());
                 stmt.setLong(2, this.getArtistId());
+                stmt.setLong(3, this.getAlbumId());
                 stmt.executeUpdate();
                 return true;
             } catch (SQLException sqlException) {
@@ -108,26 +117,27 @@ public class Album extends Model {
         }
     }
 
+    // weird error
     @Override
     public void delete() {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "DELETE FROM artists WHERE artistId=?")) {
-            stmt.setLong(1, this.getArtistId());
+                     "DELETE FROM albums WHERE AlbumId=?")) {
+            stmt.setLong(1, this.getAlbumId());
             stmt.executeUpdate();
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
     }
 
-     */
 
     public static List<Album> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM albums LIMIT ?"
+                     "SELECT * FROM albums LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, (page - 1) * 10);
             ResultSet results = stmt.executeQuery();
             List<Album> resultList = new LinkedList<>();
             while (results.next()) {

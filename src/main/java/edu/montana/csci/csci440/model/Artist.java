@@ -27,7 +27,8 @@ public class Artist extends Model {
 
     @Override
     public boolean verify() {
-        if (Name == null || "".equals(Name)) {
+        _errors.clear();
+        if ((Name == null) || ("".equals(Name))) {
             addError("name can't be null or blank!");
         }
         return !hasErrors();
@@ -56,7 +57,7 @@ public class Artist extends Model {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "UPDATE artists SET Name=? WHERE artistId=?")) {
+                         "UPDATE artists SET Name=? WHERE ArtistId=?")) {
                 stmt.setString(1, this.getName());
                 stmt.setLong(2, this.getArtistId());
                 stmt.executeUpdate();
