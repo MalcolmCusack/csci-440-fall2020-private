@@ -101,3 +101,16 @@ CREATE TABLE class
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 );
+
+SELECT * FROM tracks WHERE name LIKE "Let's Get It Up" LIMIT 1
+
+SELECT * FROM tracks
+JOIN albums ON tracks.AlbumId = albums.AlbumId
+WHERE name Like "For Those About To Rock (We Salute You)"
+AND albums.ArtistId=1
+AND albums.AlbumId=1
+AND tracks.MediaTypeId = 1
+AND tracks.GenreId = 1
+AND tracks.Milliseconds > 0
+AND tracks.Milliseconds < 1000000000
+LIMIT 5 OFFSET 10;

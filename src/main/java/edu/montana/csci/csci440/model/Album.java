@@ -80,7 +80,6 @@ public class Album extends Model {
     @Override
     public boolean create() {
         if (verify()) {
-            //this.setArtistId(this.getArtist());
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
                          "INSERT INTO albums (Title, ArtistId) VALUES (?, ?)")) {
