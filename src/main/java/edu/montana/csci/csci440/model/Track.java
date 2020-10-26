@@ -43,7 +43,10 @@ public class Track extends Model {
 
     public static Track find(int i) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks WHERE TrackId=?")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks\n" +
+                     "JOIN albums on tracks.AlbumId = albums.AlbumId\n" +
+                     "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
+                     "WHERE trackId = ?;")) {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
@@ -59,7 +62,7 @@ public class Track extends Model {
     public static Long count() {
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks\n")) {
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 return results.getLong("Count");
@@ -106,6 +109,7 @@ public class Track extends Model {
     }
 
     public void setMilliseconds(Long milliseconds) {
+
         this.milliseconds = milliseconds;
     }
 
@@ -158,6 +162,7 @@ public class Track extends Model {
         //  hint: cache on this model object
 
         // add joins
+
         return getAlbum().getArtist().getName();
     }
 
@@ -185,9 +190,11 @@ public class Track extends Model {
     @Override
     public boolean create() {
         if (verify()) {
+
+
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO tracks (Name, AlbumId, Milliseconds, Bytes, UnitPrice, MediaTypeId, GenreId) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+                         "INSERT INTO tracks ( Name, AlbumId, Milliseconds, Bytes, UnitPrice, MediaTypeId, GenreId) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
                 stmt.setString(1, this.getName());
                 stmt.setLong(2, this.getAlbumId() );
                 stmt.setLong(3, this.getMilliseconds());
@@ -209,6 +216,7 @@ public class Track extends Model {
     @Override
     public boolean update() {
         if (verify()) {
+
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
                          "UPDATE tracks SET Name=?, AlbumId=?, Milliseconds=?, Bytes=?, UnitPrice=?, MediaTypeId=?, GenreId=?  WHERE TrackId=?")) {
@@ -251,6 +259,7 @@ public class Track extends Model {
 
         String query = "SELECT * FROM tracks " +
                 "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
+                "JOIN artists ON albums.ArtistId = artists.ArtistId " +
                 "WHERE name LIKE ?";
         args.add("%" + search + "%");
 
@@ -308,8 +317,26 @@ public class Track extends Model {
     }
 
     public static List<Track> search(int page, int count, String orderBy, String search) {
-        String query = "SELECT * FROM tracks WHERE name LIKE ? LIMIT ? OFFSET ?";
+        String query = "SELECT * FROM tracks " +
+                "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
+                "JOIN artists ON albums.ArtistId = artists.ArtistId " +
+                " WHERE Name LIKE ? ";
+
         search = "%" + search + "%";
+
+        if (orderBy == null) {
+            query += "";
+        }
+        if (orderBy == "Milliseconds") {
+            query += " ORDER BY Milliseconds ";
+        }
+
+        if (orderBy == "Bytes") {
+            query += " ORDER BY Bytes ";
+        }
+
+        query += " LIMIT ? OFFSET ? ";
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, search);
@@ -327,7 +354,10 @@ public class Track extends Model {
     }
 
     public static List<Track> forAlbum(Long albumId) {
-        String query = "SELECT * FROM tracks WHERE AlbumId=?";
+        String query = "SELECT * FROM tracks\n" +
+                "JOIN albums on tracks.AlbumId = albums.AlbumsId\n" +
+                "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
+                "WHERE AlbumId=?";
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setLong(1, albumId);
@@ -352,10 +382,27 @@ public class Track extends Model {
     }
 
     public static List<Track> all(int page, int count, String orderBy) {
+
+        String query = "SELECT * FROM tracks " +
+                "JOIN albums on tracks.AlbumId = albums.AlbumId " +
+                "JOIN artists on albums.ArtistId = artists.ArtistId ";
+
+        if (orderBy == null) {
+            query += "";
+        }
+
+        if (orderBy == "Milliseconds") {
+            query += " ORDER BY Milliseconds ";
+        }
+
+        if (orderBy == "Bytes") {
+            query += " ORDER BY Bytes ";
+        }
+
+        query += " LIMIT ? OFFSET ? ";
+
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM tracks LIMIT ? OFFSET ?"
-             )) {
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, count);
             stmt.setInt(2, (page - 1) * 10);
             ResultSet results = stmt.executeQuery();

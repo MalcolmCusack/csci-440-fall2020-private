@@ -114,3 +114,9 @@ AND tracks.GenreId = 1
 AND tracks.Milliseconds > 0
 AND tracks.Milliseconds < 1000000000
 LIMIT 5 OFFSET 10;
+
+SELECT * FROM tracks
+JOIN albums on tracks.AlbumId = albums.AlbumId
+JOIN artists on albums.ArtistId = artists.ArtistId
+ORDER BY Milliseconds;
+
