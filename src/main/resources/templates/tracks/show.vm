@@ -16,7 +16,11 @@
     </tr>
     <tr>
         <td>Album</td>
+<<<<<<< HEAD
         <td><a href="/albums/$!track.AlbumId">$!album.Album.Title</a></td>
+=======
+        <td><a href="/albums/$!track.AlbumId">$!track.AlbumTitle</a></td>
+>>>>>>> a86b25bb3a5a4da6efc50de27bdde3422a6fecfb
     </tr>
     <tr>
         <td>Milliseconds</td>
