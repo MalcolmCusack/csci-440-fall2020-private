@@ -30,6 +30,11 @@ public class Track extends Model {
 
     public Track() {
         // new track for insert
+        mediaTypeId = 1l;
+        genreId = 1l;
+        milliseconds = 0l;
+        bytes = 0l;
+        unitPrice = new BigDecimal(0);
     }
 
     private Track(ResultSet results) throws SQLException {

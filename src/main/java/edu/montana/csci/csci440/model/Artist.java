@@ -112,7 +112,8 @@ public class Artist extends Model {
                      "SELECT * FROM artists LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
-            stmt.setInt(2, (page - 1) * 10);
+            stmt.setInt(2, (page - 1) * count);
+            
             ResultSet results = stmt.executeQuery();
             List<Artist> resultList = new LinkedList<>();
             while (results.next()) {
