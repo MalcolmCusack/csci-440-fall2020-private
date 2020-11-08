@@ -25,6 +25,8 @@ public class Track extends Model {
     private Long milliseconds;
     private Long bytes;
     private BigDecimal unitPrice;
+    private String artistName;
+    private String albumTitle;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
 
@@ -46,11 +48,13 @@ public class Track extends Model {
         albumId = results.getLong("AlbumId");
         mediaTypeId = results.getLong("MediaTypeId");
         genreId = results.getLong("GenreId");
+        artistName = results.getString("artistName");
+        albumTitle = results.getString("albumTitle");
     }
 
     public static Track find(int i) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks\n" +
+             PreparedStatement stmt = conn.prepareStatement("SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks " +
                      "JOIN albums on tracks.AlbumId = albums.AlbumId\n" +
                      "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
                      "WHERE trackId = ?;")) {
@@ -88,9 +92,11 @@ public class Track extends Model {
     public MediaType getMediaType() {
         return null;
     }
+
     public Genre getGenre() {
         return null;
     }
+
     public List<Playlist> getPlaylists(){
         return Collections.emptyList();
     }
@@ -106,6 +112,8 @@ public class Track extends Model {
     public String getName() {
         return name;
     }
+
+
 
     public void setName(String name) {
         this.name = name;
@@ -165,20 +173,11 @@ public class Track extends Model {
     }
 
     public String getArtistName() {
-        // TODO implement more efficiently
-        //  hint: cache on this model object
-
-        // add joins
-
-        return getAlbum().getArtist().getName();
+        return artistName;
     }
 
     public String getAlbumTitle() {
-        // TODO implement more efficiently
-        //  hint: cache on this model object
-
-        // add joins
-        return getAlbum().getTitle();
+        return albumTitle;
     }
 
 
@@ -220,6 +219,7 @@ public class Track extends Model {
         }
     }
 
+    // WTF??
     @Override
     public boolean update() {
         if (verify()) {
@@ -234,6 +234,7 @@ public class Track extends Model {
                 stmt.setBigDecimal(5, this.getUnitPrice());
                 stmt.setLong(6, this.getMediaTypeId());
                 stmt.setLong(7, this.getGenreId());
+                stmt.setLong(8, this.getTrackId());
                 stmt.executeUpdate();
                 return true;
             } catch (SQLException sqlException) {
@@ -244,7 +245,6 @@ public class Track extends Model {
         }
     }
 
-    // weird error
     @Override
     public void delete() {
         try (Connection conn = DB.connect();
@@ -264,10 +264,11 @@ public class Track extends Model {
                                               Integer genreId) {
         LinkedList<Object> args = new LinkedList<>();
 
-        String query = "SELECT * FROM tracks " +
+        String query = "SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks " +
                 "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
                 "JOIN artists ON albums.ArtistId = artists.ArtistId " +
-                "WHERE name LIKE ?";
+                "WHERE tracks.Name LIKE ?";
+
         args.add("%" + search + "%");
 
         // Conditionally include the query and argument
@@ -293,18 +294,18 @@ public class Track extends Model {
 
         // TODO add math for seconds to milliseconds
         if (minRuntime != null) {
-            query += " AND tracks.Milliseconds > minRuntime";
+            query += " AND tracks.Milliseconds > ?";
             args.add(minRuntime);
         }
 
         if (maxRuntime != null) {
-            query += " AND tracks.Milliseconds < maxRuntime";
+            query += " AND tracks.Milliseconds < ?";
             args.add(maxRuntime);
         }
 
         query += " LIMIT ? OFFSET ?";
         args.add(count);
-        args.add((page - 1) * 10);
+        args.add((page - 1) * count);
 
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -324,12 +325,12 @@ public class Track extends Model {
     }
 
     public static List<Track> search(int page, int count, String orderBy, String search) {
-        String query = "SELECT * FROM tracks " +
+        String query = "SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks " +
                 "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
                 "JOIN artists ON albums.ArtistId = artists.ArtistId " +
-                " WHERE Name LIKE ? ";
+                " WHERE tracks.Name LIKE ? ";
 
-        search = "%" + search + "%";
+        search = ("%" + search + "%");
 
         if (orderBy == null) {
             query += "";
@@ -348,7 +349,7 @@ public class Track extends Model {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, search);
             stmt.setInt(2, count);
-            stmt.setInt(3, (page - 1) * 10);
+            stmt.setInt(3, (page - 1) * count);
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {
@@ -361,10 +362,10 @@ public class Track extends Model {
     }
 
     public static List<Track> forAlbum(Long albumId) {
-        String query = "SELECT * FROM tracks\n" +
-                "JOIN albums on tracks.AlbumId = albums.AlbumsId\n" +
-                "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
-                "WHERE AlbumId=?";
+        String query = "SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks\n" +
+                "JOIN albums on tracks.AlbumId = albums.AlbumId " +
+                "JOIN artists on albums.ArtistId = artists.ArtistId " +
+                "WHERE tracks.AlbumId=?";
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setLong(1, albumId);
@@ -390,7 +391,7 @@ public class Track extends Model {
 
     public static List<Track> all(int page, int count, String orderBy) {
 
-        String query = "SELECT * FROM tracks " +
+        String query = "SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks " +
                 "JOIN albums on tracks.AlbumId = albums.AlbumId " +
                 "JOIN artists on albums.ArtistId = artists.ArtistId ";
 
@@ -411,7 +412,7 @@ public class Track extends Model {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, count);
-            stmt.setInt(2, (page - 1) * 10);
+            stmt.setInt(2, (page - 1) * count);
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {
