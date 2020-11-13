@@ -33,12 +33,21 @@ public class Homework4 extends DBTest {
 
         try(Connection connection = DB.connect()){
             connection.setAutoCommit(false);
-            PreparedStatement subtract = connection.prepareStatement("TODO");
+            PreparedStatement subtract = connection.prepareStatement("" +
+                    "\n" +
+                    "UPDATE tracks\n" +
+                    "SET Milliseconds = (Milliseconds - ?)\n" +
+                    "WHERE TrackId=?;" +
+                    "");
             subtract.setLong(1, 0);
             subtract.setLong(2, 0);
             subtract.execute();
 
-            PreparedStatement add = connection.prepareStatement("TODO");
+            PreparedStatement add = connection.prepareStatement("UPDATE tracks\n" +
+                    "SET Milliseconds=(Milliseconds+?)\n" +
+                    "WHERE TrackId=?;\n" +
+                    "\n" +
+                    "COMMIT; ");
             add.setLong(1, 0);
             add.setLong(2, 0);
             add.execute();
@@ -66,12 +75,18 @@ public class Homework4 extends DBTest {
     public void selectPopularTracksAndTheirAlbums() throws SQLException {
 
         // HINT: join to invoice items and do a group by/having to get the right answer
-        List<Map<String, Object>> tracks = executeSQL("");
+        List<Map<String, Object>> tracks = executeSQL("SELECT *from tracks\n" +
+                "JOIN albums a on tracks.AlbumId = a.AlbumId\n" +
+                "JOIN invoice_items ii on tracks.TrackId = ii.TrackId\n" +
+                "GROUP BY ii.TrackId having COUNT(ii.TrackId) > 1;");
         assertEquals(256, tracks.size());
 
         // HINT: join to tracks and invoice items and do a group by/having to get the right answer
         //       note: you will need to use the DISTINCT operator to get the right result!
-        List<Map<String, Object>> albums = executeSQL("");
+        List<Map<String, Object>> albums = executeSQL("SELECT DISTINCT albums.AlbumId from albums\n" +
+                "JOIN tracks t on albums.AlbumId = t.AlbumId\n" +
+                "JOIN invoice_items ii on t.TrackId = ii.TrackId\n" +
+                "Group By II.TrackId having COUNT(ii.TrackId) > 1;");
         assertEquals(166, albums.size());
     }
 

@@ -27,6 +27,7 @@ public class Track extends Model {
     private BigDecimal unitPrice;
     private String artistName;
     private String albumTitle;
+   // private String playLists;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
 
@@ -50,6 +51,7 @@ public class Track extends Model {
         genreId = results.getLong("GenreId");
         artistName = results.getString("artistName");
         albumTitle = results.getString("albumTitle");
+        //playLists = results.getString("playlistsName");
     }
 
     public static Track find(int i) {
@@ -57,7 +59,7 @@ public class Track extends Model {
              PreparedStatement stmt = conn.prepareStatement("SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks " +
                      "JOIN albums on tracks.AlbumId = albums.AlbumId\n" +
                      "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
-                     "WHERE trackId = ?;")) {
+                     "WHERE tracks.trackId = ?;")) {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
@@ -72,17 +74,25 @@ public class Track extends Model {
 
     public static Long count() {
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
-        try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks\n")) {
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                return results.getLong("Count");
-            } else {
-                throw new IllegalStateException("Should find a count!");
+        String stringValue = redisClient.get(REDIS_CACHE_KEY);
+        if (stringValue == null) {
+
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks\n")) {
+                ResultSet results = stmt.executeQuery();
+
+                if (results.next()) {
+                    redisClient.set(REDIS_CACHE_KEY, Long.toString(results.getLong("Count")));
+                    //return results.getLong("Count");
+                } else {
+                    throw new IllegalStateException("Should find a count!");
+                }
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
             }
-        } catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
         }
+        return Long.valueOf(redisClient.get(REDIS_CACHE_KEY)).longValue();
+        //return redisClient.get("cs440-tracks-count-cache");
     }
 
     public Album getAlbum() {
@@ -97,8 +107,11 @@ public class Track extends Model {
         return null;
     }
 
+
+
     public List<Playlist> getPlaylists(){
-        return Collections.emptyList();
+        return Playlist.getForTrack(trackId);
+       // return Collections.emptyList();
     }
 
     public Long getTrackId() {
@@ -178,6 +191,28 @@ public class Track extends Model {
 
     public String getAlbumTitle() {
         return albumTitle;
+    }
+
+    public static List<Track> getForPlaylists(Long playlistId) {
+        String query = "SELECT *, artists.Name as artistName, albums.Title as albumTitle FROM tracks\n" +
+                "JOIN albums on tracks.AlbumId = albums.AlbumId\n" +
+                "JOIN artists on albums.ArtistId = artists.ArtistId\n" +
+                "JOIN playlist_track pt on tracks.TrackId = pt.TrackId\n" +
+                "JOIN playlists p on pt.PlaylistId = p.PlaylistId\n" +
+                "WHERE p.PlaylistId=?\n" +
+                "ORDER BY tracks.Name;";
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, playlistId);
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Track(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
 

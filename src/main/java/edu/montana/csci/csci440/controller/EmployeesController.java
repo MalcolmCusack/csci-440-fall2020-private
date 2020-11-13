@@ -19,7 +19,7 @@ public class EmployeesController {
 
         post("/employees/new", (req, resp) -> {
             Employee emp = new Employee();
-            Web.putValuesInto(emp, "FirstName", "LastName");
+            Web.putValuesInto(emp, "FirstName", "LastName", "Title", "ReportsTo");
             if (emp.create()) {
                 Web.message("Created An Employee!");
                 return Web.redirect("/employees/" + emp.getEmployeeId());

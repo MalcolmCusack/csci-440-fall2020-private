@@ -27,7 +27,7 @@ public class Playlist extends Model {
     public List<Track> getTracks(){
         // TODO implement, order by track name
 
-        return Collections.emptyList();
+        return Track.getForPlaylists(playlistId);
     }
 
     public Long getPlaylistId() {
@@ -44,6 +44,25 @@ public class Playlist extends Model {
 
     public static List<Playlist> all() {
         return all(0, Integer.MAX_VALUE);
+    }
+
+    public static List<Playlist> getForTrack(Long trackId) {
+        String query = "SELECT * FROM tracks\n" +
+                "JOIN playlist_track pt on tracks.TrackId = pt.TrackId\n" +
+                "JOIN playlists p on pt.PlaylistId = p.PlaylistId" +
+                " WHERE tracks.TrackId=? ";
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, trackId);
+            ResultSet results = stmt.executeQuery();
+            List<Playlist> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Playlist(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public static List<Playlist> all(int page, int count) {
@@ -64,10 +83,13 @@ public class Playlist extends Model {
         }
     }
 
-    public static Playlist find(int i) {
+    public static Playlist find(int i, int page, int count) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM playlists WHERE PlaylistId=?")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM playlists WHERE PlaylistId=?" +
+                     " LIMIT ? OFFSET ? ")) {
             stmt.setLong(1, i);
+            stmt.setInt(2, count);
+            stmt.setInt(3, (page - 1) * count);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 return new Playlist(results);

@@ -17,7 +17,7 @@ public class PlaylistsTest extends DBTest {
 
     @Test
     void testPlaylistFieldsLoad() {
-        Playlist c = Playlist.find(3);
+        Playlist c = Playlist.find(3, 1, 1);
         assertEquals("TV Shows", c.getName());
         assertEquals(213, c.getTracks().size());
         assertEquals("...And Found", c.getTracks().get(1).getName());

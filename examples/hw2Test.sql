@@ -118,7 +118,66 @@ LIMIT 5 OFFSET 10;
 SELECT *, artists.Name, albums.Title FROM tracks
 JOIN albums on tracks.AlbumId = albums.AlbumId
 JOIN artists on albums.ArtistId = artists.ArtistId
-JOIN playlist_track on tracks.TrackId = playlist_track.TrackId
-JOIN playlists on playlist_track.PlaylistId = playlists.PlaylistId
+JOIN playlist_track pt on tracks.TrackId = pt.TrackId
+JOIN playlists p on pt.PlaylistId = p.PlaylistId
+WHERE p.PlaylistId=1
+ORDER BY tracks.Name;
+
+SELECT * , t.Name as Name FROM playlists
+JOIN playlist_track pt on playlists.PlaylistId = pt.PlaylistId
+JOIN tracks t on pt.TrackId = t.TrackId
+JOIN albums a on t.AlbumId = a.AlbumId
+JOIN artists a2 on a.ArtistId = a2.ArtistId
+WHERE playlists.PlaylistId = 1
+ORDER BY t.Name ;
+
+BEGIN TRANSACTION;
+
+UPDATE tracks
+SET Milliseconds=(Milliseconds-10)
+WHERE TrackId=1;
+
+UPDATE tracks
+SET Milliseconds=(Milliseconds+10)
+WHERE TrackId=2;
+
+COMMIT;
+
+SELECT DISTINCT  * from tracks
+JOIN albums a on tracks.AlbumId = a.AlbumId
+JOIN invoice_items ii on tracks.TrackId = ii.TrackId
+GROUP BY ii.TrackId having COUNT(ii.TrackId) > 1;
+
+SELECT DISTINCT albums.AlbumId from albums
+JOIN tracks t on albums.AlbumId = t.AlbumId
+JOIN invoice_items ii on t.TrackId = ii.TrackId
+Group By II.TrackId having COUNT(ii.TrackId) > 1;
+
+SELECT customers.Email from customers
+JOIN employees e on customers.SupportRepId = e.EmployeeId
+
+JOIN invoices i on customers.CustomerId = i.CustomerId
+JOIN invoice_items ii on i.InvoiceId = ii.InvoiceId
+JOIN tracks t on ii.TrackId = t.TrackId
+JOIN genres g on t.GenreId = g.GenreId
+GROUP BY e.FirstName having
+
+SELECT * FROM customers
+JOIN invoices i on customers.CustomerId = i.CustomerId
+JOIN invoice_items ii on i.InvoiceId = ii.InvoiceId
+JOIN tracks t on ii.TrackId = t.TrackId
+JOIN genres g on t.GenreId = g.GenreId
+WHERE customers.SupportRepId IN (SELECT employees.EmployeeId from employees where employees.LastName LIKE "Peacock" and employees.FirstName LIKE "Jane")
+GROUP BY i.CustomerId having g.Name like "Rock";
+
+SELECT  *, SUM(i.Total) as totalSales, count(i.InvoiceId) as SalesCount From employees
+JOIN customers c on employees.EmployeeId = c.SupportRepId
+JOIN invoices i on c.CustomerId = i.CustomerId
+GROUP BY employees.EmployeeId
+
+
+
+
+
 
 
