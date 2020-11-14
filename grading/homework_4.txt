@@ -6,7 +6,7 @@
 [INFO] 
 [INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ CSCI_440_Project ---
 [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
-[INFO] Copying 33 resources
+[INFO] Copying 34 resources
 [INFO] 
 [INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ CSCI_440_Project ---
 [INFO] Changes detected - recompiling the module!
@@ -31,41 +31,15 @@
 Resetting DB After Test...
 Resetting DB After Test...
 Resetting DB After Test...
-[ERROR] Tests run: 3, Failures: 1, Errors: 1, Skipped: 0, Time elapsed: 0.179 s <<< FAILURE! - in edu.montana.csci.csci440.homework.Homework4
-[ERROR] useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother  Time elapsed: 0.148 s  <<< FAILURE!
-org.opentest4j.AssertionFailedError: expected: <343719> but was: <343709>
-	at edu.montana.csci.csci440.homework.Homework4.useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother(Homework4.java:61)
-
-[ERROR] selectCustomersMeetingCriteria  Time elapsed: 0.004 s  <<< ERROR!
-java.lang.RuntimeException: java.sql.SQLException: The prepared statement has been finalized
-	at edu.montana.csci.csci440.homework.Homework4.selectCustomersMeetingCriteria(Homework4.java:102)
-Caused by: java.sql.SQLException: The prepared statement has been finalized
-	at edu.montana.csci.csci440.homework.Homework4.selectCustomersMeetingCriteria(Homework4.java:102)
-
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.199 s - in edu.montana.csci.csci440.homework.Homework4
 [INFO] 
 [INFO] Results:
 [INFO] 
-[ERROR] Failures: 
-[ERROR]   Homework4.useATransactionToSafelyMoveMillisecondsFromOneTrackToAnother:61 expected: <343719> but was: <343709>
-[ERROR] Errors: 
-[ERROR]   Homework4.selectCustomersMeetingCriteria:102->DBTest.executeSQL:58 » Runtime j...
-[INFO] 
-[ERROR] Tests run: 3, Failures: 1, Errors: 1, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] ------------------------------------------------------------------------
-[INFO] BUILD FAILURE
+[INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  4.648 s
-[INFO] Finished at: 2020-11-13T17:11:02-07:00
+[INFO] Total time:  3.411 s
+[INFO] Finished at: 2020-11-14T08:49:30-07:00
 [INFO] ------------------------------------------------------------------------
-[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.1:test (default-test) on project CSCI_440_Project: There are test failures.
-[ERROR] 
-[ERROR] Please refer to /home/carson/Projects/msu/csci-440-fall2020/grading/scripts/repos/malcolm_cusack/target/surefire-reports for the individual test results.
-[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
-[ERROR] -> [Help 1]
-[ERROR] 
-[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-[ERROR] Re-run Maven using the -X switch to enable full debug logging.
-[ERROR] 
-[ERROR] For more information about the errors and possible solutions, please read the following articles:
-[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
