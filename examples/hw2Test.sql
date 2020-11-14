@@ -162,18 +162,26 @@ JOIN tracks t on ii.TrackId = t.TrackId
 JOIN genres g on t.GenreId = g.GenreId
 GROUP BY e.FirstName having
 
-SELECT * FROM customers
+SELECT DISTINCT customers.Email FROM customers
 JOIN invoices i on customers.CustomerId = i.CustomerId
 JOIN invoice_items ii on i.InvoiceId = ii.InvoiceId
 JOIN tracks t on ii.TrackId = t.TrackId
 JOIN genres g on t.GenreId = g.GenreId
+JOIN employees e on customers.SupportRepId = e.EmployeeId
+WHERE e.EmployeeId = 3
+and g.GenreId = 1;
+/*
 WHERE customers.SupportRepId IN (SELECT employees.EmployeeId from employees where employees.LastName LIKE "Peacock" and employees.FirstName LIKE "Jane")
-GROUP BY i.CustomerId having g.Name like "Rock";
+GROUP BY i.CustomerId having g.Name like "Rock";*/
 
 SELECT  *, SUM(i.Total) as totalSales, count(i.InvoiceId) as SalesCount From employees
 JOIN customers c on employees.EmployeeId = c.SupportRepId
 JOIN invoices i on c.CustomerId = i.CustomerId
 GROUP BY employees.EmployeeId
+
+SELECT * FROM invoices
+JOIN invoice_items ii on invoices.InvoiceId = ii.InvoiceId
+WHERE invoices.InvoiceId=1;
 
 
 

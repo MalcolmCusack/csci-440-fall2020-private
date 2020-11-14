@@ -42,12 +42,20 @@ public class TracksController {
                 tracks = Track.all(Web.getPage(), Web.PAGE_SIZE, orderBy);
             }
             // TODO - implement cache of count w/ Redis
+
             Jedis jedis = new Jedis();
+
             long totalTracks = Track.count();
             // clear cache on insert and delete
+            if(req.headers("HX-Request") != null){
+                return Web.renderTemplate("templates/tracks/table.vm",
+                        "tracks", tracks, "totalTracks", totalTracks);
+            } else {
+                return Web.renderTemplate("templates/tracks/index.vm",
+                        "tracks", tracks, "totalTracks", totalTracks);
+            }
 
-            return Web.renderTemplate("templates/tracks/index.vm",
-                    "tracks", tracks, "totalTracks", totalTracks);
+
         });
 
         get("/tracks/search", (req, resp) -> {

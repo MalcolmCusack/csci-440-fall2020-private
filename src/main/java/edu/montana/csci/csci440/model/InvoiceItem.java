@@ -1,6 +1,8 @@
 package edu.montana.csci.csci440.model;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class InvoiceItem extends Model {
 
@@ -56,4 +58,7 @@ public class InvoiceItem extends Model {
     public void setQuantity(Long quantity) {
         this.quantity = quantity;
     }
+
+
+
 }

@@ -231,6 +231,9 @@ public class Track extends Model {
     @Override
     public boolean create() {
         if (verify()) {
+            Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
+            redisClient.get(REDIS_CACHE_KEY);
+            redisClient.flushAll();
 
 
             try (Connection conn = DB.connect();
@@ -258,7 +261,9 @@ public class Track extends Model {
     @Override
     public boolean update() {
         if (verify()) {
-
+            Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
+            redisClient.get(REDIS_CACHE_KEY);
+            redisClient.flushAll();
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
                          "UPDATE tracks SET Name=?, AlbumId=?, Milliseconds=?, Bytes=?, UnitPrice=?, MediaTypeId=?, GenreId=?  WHERE TrackId=?")) {
@@ -282,6 +287,9 @@ public class Track extends Model {
 
     @Override
     public void delete() {
+        Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
+        redisClient.get(REDIS_CACHE_KEY);
+        redisClient.flushAll();
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "DELETE FROM tracks WHERE TrackId=?")) {

@@ -40,7 +40,6 @@ public class Employee extends Model {
                              "JOIN invoices i on c.CustomerId = i.CustomerId\n" +
                              "GROUP BY employees.EmployeeId"
              )) {
-            //stmt.setInt(1, count);
             ResultSet results = stmt.executeQuery();
             List<Employee.SalesSummary> resultList = new LinkedList<>();
             while (results.next()) {
@@ -188,8 +187,8 @@ public class Employee extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
     public Employee getBoss() {
-        //TODO implement
         return Employee.find(this.reportsTo) ;
     }
 
@@ -200,9 +199,10 @@ public class Employee extends Model {
     public static List<Employee> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM employees LIMIT ?"
+                     "SELECT * FROM employees LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, (page - 1) * count );
             ResultSet results = stmt.executeQuery();
             List<Employee> resultList = new LinkedList<>();
             while (results.next()) {
@@ -249,7 +249,6 @@ public class Employee extends Model {
     }
 
     public void setReportsTo(Employee employee) {
-        // TODO implement
         this.reportsTo = employee.employeeId;
     }
 

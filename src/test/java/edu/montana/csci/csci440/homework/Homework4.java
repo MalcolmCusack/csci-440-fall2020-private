@@ -39,18 +39,22 @@ public class Homework4 extends DBTest {
                     "SET Milliseconds = (Milliseconds - ?)\n" +
                     "WHERE TrackId=?;" +
                     "");
-            subtract.setLong(1, 0);
-            subtract.setLong(2, 0);
+            subtract.setLong(1, 10);
+            subtract.setLong(2, 1);
             subtract.execute();
 
-            PreparedStatement add = connection.prepareStatement("UPDATE tracks\n" +
-                    "SET Milliseconds=(Milliseconds+?)\n" +
+            PreparedStatement add = connection.prepareStatement("" +
+                    "UPDATE tracks\n" +
+                    "SET Milliseconds= (Milliseconds + ?)\n" +
                     "WHERE TrackId=?;\n" +
                     "\n" +
-                    "COMMIT; ");
-            add.setLong(1, 0);
-            add.setLong(2, 0);
+                    "");
+
+
+            add.setLong(1, 10);
+            add.setLong(2, 2);
             add.execute();
+            connection.commit();
 
             // commit with the connection
         }
@@ -99,7 +103,14 @@ public class Homework4 extends DBTest {
      * */
     public void selectCustomersMeetingCriteria() throws SQLException {
         // HINT: join to invoice items and do a group by/having to get the right answer
-        List<Map<String, Object>> tracks = executeSQL("" );
+        List<Map<String, Object>> tracks = executeSQL("SELECT DISTINCT customers.Email FROM customers\n" +
+                "JOIN invoices i on customers.CustomerId = i.CustomerId\n" +
+                "JOIN invoice_items ii on i.InvoiceId = ii.InvoiceId\n" +
+                "JOIN tracks t on ii.TrackId = t.TrackId\n" +
+                "JOIN genres g on t.GenreId = g.GenreId\n" +
+                "JOIN employees e on customers.SupportRepId = e.EmployeeId\n" +
+                "WHERE e.EmployeeId = 3\n" +
+                "and g.GenreId = 1;" );
         assertEquals(21, tracks.size());
     }
 
