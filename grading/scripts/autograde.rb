@@ -8,95 +8,137 @@ require 'csv'
 # =====================================================================
 git_token = ENV["GITHUB_TOKEN"]
 unless git_token
-    throw "You must set the GITHUB_TOKEN environment variable"
+  throw "You must set the GITHUB_TOKEN environment variable"
 end
 client = Octokit::Client.new(:access_token => git_token)
 client.auto_paginate = true
 user = client.user
-git_username= user.login
+git_username = user.login
+class_repo_name = "msu/csci-440-fall2020"
+class_repo_url = "https://github.com/#{class_repo_name}"
 puts("github user id: #{user.login}")
 
 # =====================================================================
 #  helper functions
 # =====================================================================
-def each_student_dir(path)
-    Dir.foreach(path) do |filename|
-      next unless filename.end_with? "txt"
-      dir_name = filename.split(/[.,]/)[0]
-      destination = "#{path}/student_repos/#{dir_name}"
-      if File.directory? destination
-        yield destination
-      else
-        puts "Directory #{destination} does not exist, can't test"
-      end
-    end
-end
 
 def each_student
-    results = CSV.read("students.csv", headers:true)
-    results.each do |row|
-        yield row
+  results = CSV.read("students.csv", headers: true)
+  results.each do |row|
+    yield row
+  end
+end
+
+def for_each_student_dir
+  each_student do |student|
+    dir = "repos/#{student_dir(student)}"
+    if Dir.exist? dir
+      Dir.chdir dir do
+        yield student["FIRST_NAME"], student["LAST_NAME"], dir
+      end
+    else
+      puts "Directory #{dir} does not exist"
     end
+  end
 end
 
 def student_dir(student)
   student["FIRST_NAME"].downcase + "_" + student["LAST_NAME"].downcase
 end
 
+def maven_test(pattern, output_file)
+  puts `mvn -B "-Dtest=#{pattern}" test > #{output_file} 2> err.out`
+end
+
+def pull
+  puts `git pull`
+end
+
+def push_grading
+  puts `git add grading/*; git commit -m "From Autograder"; git push`
+end
+
+def grading_dir_exist?
+  Dir.exist? "grading"
+end
 
 # =====================================================================
 #  command line
 # =====================================================================
 
-command = ARGV[0]
-
-if command == "accept_invites"
-    puts("Accepting Repository Invites")
-    puts("------------------")
-    client.user_repository_invitations.each do |ri|
-      puts "  Accepting #{ri[:id]}: #{ri[:repository][:full_name]}"
-      client.accept_repo_invitation(ri[:id])
-    end
-elsif command == "grade"
-    assignment = ARGV[1]
-    if  assignment == "hwk4"
-        each_student do |student|
-            dir = "repos/#{student_dir(student)}"
-            puts "Grading #{student['FIRST_NAME']} #{student['LAST_NAME']} in #{dir}"
-            puts
-            `mkdir -p #{dir}/grading/;
-             cd #{dir};
-             mvn -Dtest=Homework4 test > grading/homework_4.txt 2> err.out;
-             git add grading/*;
-             git commit -m "From Autograder"
-             git push`
-        end
-    elsif  assignment == "project"
-        each_student do |student|
-            dir = "repos/#{student_dir(student)}"
-            puts "Grading #{student['FIRST_NAME']} #{student['LAST_NAME']} in #{dir}"
-            puts
-            `mkdir -p #{dir}/grading/;
-             cd #{dir};
-             mvn "-Dtest=edu.montana.csci.csci440.model.*Test" test > grading/project.txt 2> err.out;
-             git add grading/*;
-             git commit -m "From Autograder"
-             git push`
-        end
+case ARGV[0]
+when "accept_pull_requests"
+  puts("Accepting Pull Requests")
+  puts("------------------")
+  repo = client.repo(class_repo_name)
+  client.pull_requests(repo[:id]).each do |pr|
+    puts "  Merging #{pr[:id]} - #{pr[:number]}: #{pr[:head][:repo][:full_name]}"
+    client.merge_pull_request(repo[:id], pr[:number])
+  end
+when "init_repos"
+  for_each_student_dir do |first, last|
+    puts "Initializing repo for #{first} #{last}"
+    if grading_dir_exist?
+      puts "Repo already initialized..."
     else
-        puts "Unknown assignment: #{assignment}"
+      puts `git pull #{class_repo_url} master;`
     end
-elsif command == "clone_repos"
-    each_student do |student|
-        repo_url = student["REPO"]
-        `git clone https://#{git_username}:#{git_token}@#{repo_url} repos/#{student_dir(student)}`
+  end
+when "accept_invites"
+  puts("Accepting Repository Invites")
+  puts("------------------")
+  client.user_repository_invitations.each do |ri|
+    puts "  Accepting #{ri[:id]}: #{ri[:repository][:full_name]}"
+    client.accept_repo_invitation(ri[:id])
+  end
+when "grade"
+  assignment = ARGV[1]
+  case assignment
+  when "homework_4"
+    for_each_student_dir do |first, last, dir|
+      puts "Grading #{assignment} for #{first} #{last} in #{dir}"
+      unless grading_dir_exist?
+        puts("Grading directory does not exist!")
+        next
+      end
+      pull
+      maven_test("Homework4", "grading/homework_4.txt")
+      push_grading
     end
-elsif command == "clear_repos"
-    `rm -rf repos`
+  when "project"
+    for_each_student_dir do |first, last, dir|
+      puts "Grading #{assignment} for #{first} #{last} in #{dir}"
+      unless grading_dir_exist?
+        puts("Grading directory does not exist!")
+        next
+      end
+      pull
+      maven_test("edu.montana.csci.csci440.model.*Test", "grading/project.txt")
+      push_grading
+    end
+  else
+    puts "Unknown assignment: #{assignment} (expected homework_4, project)"
+  end
+when "clone_repos"
+  each_student do |student|
+    student_dir = student_dir(student)
+    if Dir.exist? student_dir
+      puts "Directory #{student_dir} already exists, skipping..."
+    else
+      repo_url = student["REPO"]
+      if repo_url.strip.empty?
+        puts("No git URL for #{student["FIRST_NAME"]} #{student["LAST_NAME"]}")
+        next
+      end
+      `git clone https://#{git_username}:#{git_token}@#{repo_url} repos/#{student_dir}`
+    end
+  end
+when "clear_repos"
+  `rm -rf repos`
 else
-    puts "Commands:
+  puts "Commands:
     accept_invites - accepts pending invites
     clone_repos - clones student repos to the repos directory
     clear_repos - removes all repos from the current dir
-    grade <assignment> - grades the given assignment and pushes it"
+    grade <assignment> - grades the given assignment and pushes it (homework_4, project)"
 end
